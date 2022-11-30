@@ -1,0 +1,12 @@
+{
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "email": "Email Address",
+  "password": "Password",
+  "confirm_password": "Confirm Password",
+  "mobile_number": "Mobile Number",
+  "or": "or",
+  "get_started": "Get started",
+  "login": "Login",
+  "sign_up": "Sign Up"
+}

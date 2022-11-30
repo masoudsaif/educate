@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Hiyagh Ahey Sans.ttf",
+      "sha1": "65cb35f60e9a34fdad1b56e7cb04effad55957e4"
+    },
+    {
+      "path": "src/assets/fonts/Roboto Condensed.ttf",
+      "sha1": "e0d7acf2ca3dd0ff68f533797bb94b0580397e95"
+    },
+    {
+      "path": "src/assets/fonts/Roboto Medium.ttf",
+      "sha1": "01d4ccbdf1ba0a8e14497521686e1246f8dc57c4"
+    },
+    {
+      "path": "src/assets/fonts/Roboto.ttf",
+      "sha1": "a18dcbf99c8d2325c2fbf22a64e8cc28a0cf4d3b"
+    }
+  ]
+}
