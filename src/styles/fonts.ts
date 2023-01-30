@@ -18,7 +18,7 @@ export const fontSizes = {
 
 export const fontFamilies = {
   primary: 'Hiyagh Ahey Sans',
-  text: 'Roboto Medium',
+  text: 'Roboto Condensed',
 };
 
 export type FontFamily = keyof typeof fontFamilies;

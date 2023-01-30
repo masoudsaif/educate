@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import Input from '../components/molecules/Input';
 import MobileInput from '../components/molecules/MobileInput';
+import Select from '../components/molecules/Select';
 import ScreenLayout from '../components/organisms/ScreenLayout';
 import { INavigationProp } from '../constants/types';
 import usePalette from '../hooks/usePalette';

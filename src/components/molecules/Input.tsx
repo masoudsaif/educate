@@ -15,17 +15,20 @@ import {
 
 import useForwardedRef from '../../hooks/useForwardedRef';
 import usePalette from '../../hooks/usePalette';
-import { fontFamilies, fontSizes } from '../../styles/fonts';
+import { fontFamilies, FontFamily, fontSizes } from '../../styles/fonts';
 import { Color } from '../../styles/palette';
 import { sizes } from '../../styles/sizes';
 import Typography from '../atoms/Typography';
 import IconButton, { IIconButtonProps } from './IconButton';
 
 export interface IInputProps extends TextInputProps, ViewStyle {
+  isDisabled?: boolean;
+  isFocusedStyled?: boolean;
   disableBorderPlaceholder?: boolean;
   disableAnimation?: boolean;
   animationDuration?: number;
   variant?: 'outlined' | 'standard';
+  fontFamily?: FontFamily;
   isFullWidth?: boolean;
   isValidated?: boolean;
   marginTop?: number;
@@ -59,7 +62,7 @@ const Input = forwardRef<TextInput, IInputProps>(
       disableBorderPlaceholder,
       disableAnimation = disableBorderPlaceholder,
       margin,
-      marginBottom,
+      marginBottom = sizes.xxs,
       marginEnd,
       marginHorizontal,
       marginLeft,
@@ -75,10 +78,14 @@ const Input = forwardRef<TextInput, IInputProps>(
       paddingRight,
       paddingStart,
       paddingTop,
-      paddingVertical,
+      paddingVertical = sizes.lg,
       elevation,
-      editable,
+      isDisabled,
+      editable = isDisabled,
       value,
+      isFocusedStyled,
+      fontFamily = 'text',
+      opacity = 1,
       animationDuration = 100,
       backgroundColor = 'lightBackground',
       inputBackgroundColor = 'lightBackground',
@@ -90,7 +97,7 @@ const Input = forwardRef<TextInput, IInputProps>(
       fontSize = 'lg',
       color = 'dark',
       focusColor = 'primary',
-      borderWidth = sizes.xs,
+      borderWidth = sizes.xxs,
       borderRadius = sizes.md,
       onFocus,
       onBlur,
@@ -113,13 +120,25 @@ const Input = forwardRef<TextInput, IInputProps>(
     const focusPlaceholderFontSize = fontSizes[fontSize] - 4;
     const focusPlaceholderLeft = variant === 'outlined' ? 10 : -3;
     const { current: placeholderTop } = useRef(
-      new Animated.Value(blurPlaceholderTop)
+      new Animated.Value(
+        disableAnimation || value?.length
+          ? focusPlaceholderTop
+          : blurPlaceholderTop
+      )
     );
     const { current: placeholderLeft } = useRef(
-      new Animated.Value(blurPlaceholderLeft)
+      new Animated.Value(
+        disableAnimation || value?.length
+          ? focusPlaceholderLeft
+          : blurPlaceholderLeft
+      )
     );
     const { current: placeholderFontSize } = useRef(
-      new Animated.Value(blurPlaceholderFontSize)
+      new Animated.Value(
+        disableAnimation || value?.length
+          ? focusPlaceholderFontSize
+          : blurPlaceholderFontSize
+      )
     );
 
     const currentColor = useMemo(() => {
@@ -136,10 +155,9 @@ const Input = forwardRef<TextInput, IInputProps>(
       return focusColor;
     }, [focusColor, isValidated, value]);
 
-    const currentCondition = useMemo(
-      () => isFocused || (!editable && typeof editable === 'boolean'),
-      [isFocused, editable]
-    );
+    const disabled = !editable && typeof editable === 'boolean';
+
+    const isFocusedOrDisabled = isFocused || disabled || isFocusedStyled;
 
     const isPlaceholderActive = useMemo(
       () => placeholder && !disableBorderPlaceholder,
@@ -218,7 +236,7 @@ const Input = forwardRef<TextInput, IInputProps>(
     };
 
     const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      if (!value?.length && isEmpty) {
+      if (!value?.length && isEmpty && !disableAnimation) {
         handleFocusEffect();
       } else {
         setIsFocused(true);
@@ -229,7 +247,7 @@ const Input = forwardRef<TextInput, IInputProps>(
     };
 
     const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      if (!value?.length && isEmpty) {
+      if (!value?.length && isEmpty && !disableAnimation) {
         handleBlurEffect();
       } else {
         setIsFocused(false);
@@ -267,8 +285,7 @@ const Input = forwardRef<TextInput, IInputProps>(
               paddingRight,
               paddingStart,
               paddingTop,
-              paddingVertical:
-                (paddingVertical || 0) + ((isPlaceholderActive && 8) || 0),
+              paddingVertical,
               flexDirection,
               alignItems,
               width,
@@ -276,8 +293,9 @@ const Input = forwardRef<TextInput, IInputProps>(
               height,
               maxHeight,
               borderWidth,
+              opacity,
               backgroundColor: palette[backgroundColor],
-              borderColor: palette[currentCondition ? currentColor : color],
+              borderColor: palette[isFocusedOrDisabled ? currentColor : color],
               borderRadius,
               ...(variant === 'standard' && {
                 borderWidth: 0,
@@ -292,7 +310,7 @@ const Input = forwardRef<TextInput, IInputProps>(
               isAnimated
               position="absolute"
               paddingHorizontal={sizes.sm}
-              color={currentCondition ? currentColor : color}
+              color={isFocusedOrDisabled ? currentColor : color}
               backgroundColor={palette[backgroundColor]}
               animatedStyle={{
                 fontSize: placeholderFontSize,
@@ -310,7 +328,9 @@ const Input = forwardRef<TextInput, IInputProps>(
                 <IconButton
                   {...startIcon}
                   color={
-                    currentCondition ? currentColor : startIcon.color || color
+                    isFocusedOrDisabled
+                      ? currentColor
+                      : startIcon.color || color
                   }
                   style={[{ paddingHorizontal: sizes.md }, startIcon.style]}
                 />
@@ -331,13 +351,19 @@ const Input = forwardRef<TextInput, IInputProps>(
                 borderRadius,
                 flex: 1,
                 paddingVertical: 0,
-                opacity: isEmpty ? 0 : 1,
+                opacity:
+                  isEmpty &&
+                  !disableBorderPlaceholder &&
+                  !disableAnimation &&
+                  !value?.length
+                    ? 0
+                    : opacity,
                 backgroundColor: palette[inputBackgroundColor],
                 paddingLeft: startIcon ? 0 : sizes.sm,
                 paddingRight: endIcon ? 0 : sizes.sm,
                 fontSize: fontSizes[fontSize],
                 color: palette[textColor],
-                fontFamily: fontFamilies.text,
+                fontFamily: fontFamilies[fontFamily],
               },
               style,
             ]}
@@ -345,7 +371,9 @@ const Input = forwardRef<TextInput, IInputProps>(
           {endIcon && (
             <IconButton
               {...endIcon}
-              color={currentCondition ? currentColor : endIcon.color || color}
+              color={
+                isFocusedOrDisabled ? currentColor : endIcon.color || color
+              }
               style={[{ paddingHorizontal: sizes.md }, endIcon.style]}
             />
           )}
